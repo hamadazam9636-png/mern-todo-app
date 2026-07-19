@@ -1,12 +1,13 @@
 import express from 'express'
 import cors from "cors"
+import 'dotenv/config'
 import { collectionName, connection } from './dbconfig.js'
 import { ObjectId } from 'mongodb';
 import jwt, { decode } from "jsonwebtoken"
 import cookieParser from 'cookie-parser';
 const app = express()
 app.use(cors({
-    origin:"http://localhost:5173",
+    origin:true,
     credentials:true
 }));
 app.use(express.json());
@@ -19,7 +20,7 @@ if (userData.email && userData.password) {
     const collection = db.collection("users")
     const result = await collection.findOne({email:userData.email,password:userData.password})
     if (result) {
-    jwt.sign(userData,"Google",{expiresIn:"5d"}, (error,token)=>{
+    jwt.sign(userData,process.env.JWT_SECRET,{expiresIn:"5d"}, (error,token)=>{
     res.send({success:true,message:"Login Done",token})
     })
     }else{
@@ -39,7 +40,7 @@ if (userData.email && userData.password) {
     const collection = db.collection("users")
     const result =await collection.insertOne(userData)
     if (result) {
-    jwt.sign(userData,"Google",{expiresIn:"5d"}, (error,token)=>{
+    jwt.sign(userData,process.env.JWT_SECRET,{expiresIn:"5d"}, (error,token)=>{
     res.send({success:true,message:"SignUp Done",token})
     })
     }
@@ -117,24 +118,21 @@ const deleteTaskIds = Ids.map((item) => new ObjectId(item))
 const collection = await db.collection(collectionName)
 const result = await collection.deleteMany({_id:{$in:deleteTaskIds}});
 if (result) {
-    res.send({message:"Task Deleted",success:result})
+   res.send({ message: "Task Deleted", success: true })
 }else{
     res.send({message:"error Try After Sometime",success:false})
 }
 
 })
 
-function verifyjwtToken(req,res,next){
-const token = req.cookies['token'];
-jwt.verify(token,"Google",(error,decoded)=>{
-    if (error) {
-        res.send({
-            success:false,
-            message:"Invalid token"
-        })
-    }
-    next()
-})
+function verifyjwtToken(req, res, next) {
+    const token = req.cookies['token'];
+    if (!token) return res.send({ success: false, message: "Token Missing" });
+    
+    jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+        if (error) return res.send({ success: false, message: "Invalid token" });
+        next();
+    });
 }
 
-app.listen(3200)
+app.listen(process.env.PORT || 3200)
