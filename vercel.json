@@ -12,15 +12,7 @@
   ],
   "routes": [
     {
-      "src": "/login",
-      "dest": "backend/index.js"
-    },
-    {
-      "src": "/signup",
-      "dest": "backend/index.js"
-    },
-    {
-      "src": "/tasks(.*)",
+      "src": "/(login|signup|add-task|tasks|task/.*|update-task|delete/.*|delete-multiple)",
       "dest": "backend/index.js"
     },
     {
