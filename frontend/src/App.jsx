@@ -15,6 +15,17 @@ import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   useEffect(() => {
+    const handleOnline = () => {
+      toast.success("Internet connection restored.");
+    };
+
+    const handleOffline = () => {
+      toast.error("No internet connection. Please check your network status.");
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
     const requestInterceptor = axios.interceptors.request.use(
       (config) => {
         if (!navigator.onLine) {
@@ -39,6 +50,8 @@ function App() {
     );
 
     return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
       axios.interceptors.request.eject(requestInterceptor);
       axios.interceptors.response.eject(responseInterceptor);
     };
