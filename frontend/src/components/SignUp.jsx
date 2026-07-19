@@ -46,7 +46,7 @@ function SignUp() {
       }
     } catch (error) {
       console.error("SignUp Error:", error);
-      showPopup("Error", "Server is not responding. Try again later.", "info");
+      showPopup("Error", "Network is not connected. Try again later.", "info");
     } finally {
       setLoading(false)
     }
